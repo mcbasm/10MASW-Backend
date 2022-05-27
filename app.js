@@ -1,8 +1,11 @@
+//#region IMPORTS
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors')
+//#endregion IMPORTS
 
 //#region ROUTE IMPORTS
 var indexRouter = require('./routes/index');
@@ -19,6 +22,8 @@ db.getConnection().asPromise().then(() => {
 //#endregion MONGODB CONNECTION
 
 var app = express();
+
+app.use(cors())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
