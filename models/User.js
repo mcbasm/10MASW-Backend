@@ -27,6 +27,11 @@ var UserSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Role',
         required: true
+    },
+    status: {
+        type: Boolean,
+        required: true,
+        default: true
     }
 })
 

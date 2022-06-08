@@ -23,7 +23,7 @@ router.get('/:id', (req, res, next) => {
 })
 // Crear un registro
 router.post('/', (req, res, next) => {
-    Role.create(req.body.object, (err, result) => {
+    Role.create(req.body, (err, result) => {
         if (err) return next(err);
         else
             res.json(result)
@@ -31,7 +31,7 @@ router.post('/', (req, res, next) => {
 })
 // Editar un registro
 router.put('/:id', (req, res, next) => {
-    Role.findByIdAndUpdate(req.params.id, req.body.object, (err, result) => {
+    Role.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
         if (err) return next(err);
         else
             res.json(result)
