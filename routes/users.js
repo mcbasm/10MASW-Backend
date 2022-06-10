@@ -9,6 +9,12 @@ var User = require('../models/User')
 router.get('/', (req, res, next) => {
   User.find({
     status: true
+  }).select({
+    "name": 1,
+    "lastName": 1,
+    "email": 1,
+    "phone": 1,
+    "role": 1
   }).populate('role').exec((err, result) => {
     if (err) return next(err);
     else
@@ -17,7 +23,13 @@ router.get('/', (req, res, next) => {
 })
 // Obtener un registro por ID
 router.get('/:id', (req, res, next) => {
-  User.findById(req.params.id, (err, result) => {
+  User.findById(req.params.id).select({
+    "name": 1,
+    "lastName": 1,
+    "email": 1,
+    "phone": 1,
+    "role": 1
+  }).populate('role').exec((err, result) => {
     if (err) return next(err);
     else
       res.json(result)
