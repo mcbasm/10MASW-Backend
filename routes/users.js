@@ -2,6 +2,7 @@
 var express = require('express');
 var router = express.Router();
 var User = require('../models/User')
+var encryption = require('../security/encryption')
 //#endregion IMPORTS
 
 //#region REQUESTS
