@@ -1,61 +1,65 @@
 //#region IMPORTS
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-var User = require('../models/User')
-var encryption = require('../security/encryption')
+var User = require("../models/User");
+var encryption = require("../security/encryption");
 //#endregion IMPORTS
 
 //#region REQUESTS
 // Obtener todos los registros
-router.get('/', (req, res, next) => {
+router.get("/", (req, res, next) => {
   User.find({
-    status: true
-  }).select({
-    "name": 1,
-    "lastName": 1,
-    "email": 1,
-    "phone": 1,
-    "role": 1
-  }).populate('role').exec((err, result) => {
-    if (err) return next(err);
-    else
-      res.json(result)
+    status: true,
   })
-})
+    .select({
+      name: 1,
+      lastName: 1,
+      email: 1,
+      phone: 1,
+      role: 1,
+    })
+    .populate("role")
+    .exec((err, result) => {
+      if (err) return next(err);
+      else res.json(result);
+    });
+});
 // Obtener un registro por ID
-router.get('/:id', (req, res, next) => {
-  User.findById(req.params.id).select({
-    "name": 1,
-    "lastName": 1,
-    "email": 1,
-    "phone": 1,
-    "role": 1
-  }).populate('role').exec((err, result) => {
-    if (err) return next(err);
-    else
-      res.json(result)
-  })
-})
+router.get("/:id", (req, res, next) => {
+  User.findById(req.params.id)
+    .select({
+      name: 1,
+      lastName: 1,
+      email: 1,
+      phone: 1,
+      role: 1,
+    })
+    .populate("role")
+    .exec((err, result) => {
+      if (err) return next(err);
+      else res.json(result);
+    });
+});
 // Obtener el listado de los registros paginados
-router.post('/paginated', async (req, res, next) => {
-  const {
-    page = 1, limit = 10
-  } = req.body
+router.post("/paginated", async (req, res, next) => {
+  const { page = 1, limit = 10 } = req.body;
 
   const items = await User.find({
-      status: true
-    }).select({
-      "name": 1,
-      "lastName": 1,
-      "email": 1,
-      "phone": 1,
-      "role": 1
-    }).populate('role')
+    status: true,
+  })
+    .select({
+      name: 1,
+      lastName: 1,
+      email: 1,
+      phone: 1,
+      role: 1,
+    })
+    .populate("role")
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .exec();
   const count = await User.countDocuments({
-    status: true
+    status: true,
   });
 
   res.json({
@@ -64,58 +68,57 @@ router.post('/paginated', async (req, res, next) => {
       limit,
       totalItems: count,
       totalPages: Math.ceil(count / limit),
-      currentPage: page
-    }
+      page,
+    },
   });
-})
+});
 // Crear un registro
-router.post('/', (req, res, next) => {
+router.post("/", (req, res, next) => {
   // Obtener el valor de la contraseña y desencriptarlo del frontend para encriptarlo de nuevo en el backend
-  const passwordFEdecrypted = encryption.decryptFE(req.body.password)
-  req.body.password = encryption.encrypt(passwordFEdecrypted)
+  const passwordFEdecrypted = encryption.decryptFE(req.body.password);
+  req.body.password = encryption.encrypt(passwordFEdecrypted);
   User.create(req.body, (err, result) => {
     if (err) return next(err);
-    else
-      res.json(result)
-  })
-})
+    else res.json(result);
+  });
+});
 // Editar un registro
-router.put('/:id', (req, res, next) => {
+router.put("/:id", (req, res, next) => {
   // Obtener el valor de la contraseña y desencriptarlo del frontend para encriptarlo de nuevo en el backend
   if (req.body.password) {
-    const passwordFEdecrypted = encryption.decryptFE(req.body.password)
-    req.body.password = encryption.encrypt(passwordFEdecrypted)
+    const passwordFEdecrypted = encryption.decryptFE(req.body.password);
+    req.body.password = encryption.encrypt(passwordFEdecrypted);
     User.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
       if (err) return next(err);
-      else
-        res.json(result)
-    })
+      else res.json(result);
+    });
   } else {
     // Si no hay cambio de password, editar solo los campos basicos
-    User.findByIdAndUpdate(req.params.id, {
-      $set: {
-        name: req.body.name,
-        lastName: req.body.lastName,
-        email: req.body.email,
-        phone: req.body.phone,
-        role: req.body.role,
+    User.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          name: req.body.name,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          phone: req.body.phone,
+          role: req.body.role,
+        },
+      },
+      (err, result) => {
+        if (err) return next(err);
+        else res.json(result);
       }
-    }, (err, result) => {
-      if (err) return next(err);
-      else
-        res.json(result)
-    })
+    );
   }
-
-})
+});
 // Eliminar un registro
-router.delete('/:id', (req, res, next) => {
+router.delete("/:id", (req, res, next) => {
   User.findByIdAndDelete(req.params.id, {}, (err, result) => {
     if (err) return next(err);
-    else
-      res.json(result)
-  })
-})
+    else res.json(result);
+  });
+});
 //#endregion REQUESTS
 
 module.exports = router;
