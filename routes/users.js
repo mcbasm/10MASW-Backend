@@ -3,7 +3,16 @@ var express = require("express");
 var router = express.Router();
 var User = require("../models/User");
 var encryption = require("../security/encryption");
+var jwt = require("express-jwt");
+var authentication = require("../security/authentication.js");
 //#endregion IMPORTS
+
+//#region DATA
+var auth = jwt({
+  secret: process.env.secret,
+  userProperty: "payload",
+});
+//#endregion DATA
 
 //#region REQUESTS
 // Obtener todos los registros
