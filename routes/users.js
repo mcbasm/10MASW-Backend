@@ -4,7 +4,6 @@ var router = express.Router();
 var User = require("../models/User");
 var encryption = require("../security/encryption");
 var jwt = require("express-jwt");
-var authentication = require("../security/authentication.js");
 //#endregion IMPORTS
 
 //#region DATA
@@ -16,7 +15,7 @@ var auth = jwt({
 
 //#region REQUESTS
 // Obtener todos los registros
-router.get("/", (req, res, next) => {
+router.get("/", auth, (req, res, next) => {
   User.find({
     status: true,
   })
@@ -34,7 +33,7 @@ router.get("/", (req, res, next) => {
     });
 });
 // Obtener un registro por ID
-router.get("/:id", (req, res, next) => {
+router.get("/:id", auth, (req, res, next) => {
   User.findById(req.params.id)
     .select({
       name: 1,
@@ -50,7 +49,7 @@ router.get("/:id", (req, res, next) => {
     });
 });
 // Obtener el listado de los registros paginados
-router.post("/paginated", async (req, res, next) => {
+router.post("/paginated", auth, async (req, res, next) => {
   const { page = 1, limit = 10 } = req.body;
 
   const items = await User.find({
@@ -82,7 +81,7 @@ router.post("/paginated", async (req, res, next) => {
   });
 });
 // Crear un registro
-router.post("/", (req, res, next) => {
+router.post("/", auth, (req, res, next) => {
   // Obtener el valor de la contraseña y desencriptarlo del frontend para encriptarlo de nuevo en el backend
   const passwordFEdecrypted = encryption.decryptFE(req.body.password);
   req.body.password = encryption.encrypt(passwordFEdecrypted);
@@ -92,7 +91,7 @@ router.post("/", (req, res, next) => {
   });
 });
 // Editar un registro
-router.put("/:id", (req, res, next) => {
+router.put("/:id", auth, (req, res, next) => {
   // Obtener el valor de la contraseña y desencriptarlo del frontend para encriptarlo de nuevo en el backend
   if (req.body.password) {
     const passwordFEdecrypted = encryption.decryptFE(req.body.password);
@@ -122,7 +121,7 @@ router.put("/:id", (req, res, next) => {
   }
 });
 // Eliminar un registro
-router.delete("/:id", (req, res, next) => {
+router.delete("/:id", auth, (req, res, next) => {
   User.findByIdAndDelete(req.params.id, {}, (err, result) => {
     if (err) return next(err);
     else res.json(result);
