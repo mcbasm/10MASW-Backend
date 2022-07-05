@@ -8,6 +8,6 @@ var RoleSchema = new Schema({
         type: String,
         required: true
     }
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model('Role', RoleSchema);

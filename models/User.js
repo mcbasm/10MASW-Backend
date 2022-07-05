@@ -6,37 +6,40 @@ var jwt = require("jsonwebtoken");
 require("dotenv").config();
 //#endregion IMPORTS
 
-var UserSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
+var UserSchema = new Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    name: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: Schema.Types.ObjectId,
+      ref: "Role",
+      required: true,
+    },
+    status: {
+      type: Boolean,
+      required: true,
+      default: true,
+    },
   },
-  lastName: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-  },
-  phone: {
-    type: String,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  role: {
-    type: Schema.Types.ObjectId,
-    ref: "Role",
-    required: true,
-  },
-  status: {
-    type: Boolean,
-    required: true,
-    default: true,
-  },
-});
+  { timestamps: true }
+);
 
 UserSchema.methods.validPassword = function (password) {
   var hash = encryption.encrypt(password);
@@ -52,6 +55,7 @@ UserSchema.methods.generateJwt = function () {
       _id: this._id,
       email: this.email,
       name: this.name,
+      role: this.role,
       exp: parseInt(expiry.getTime() / 1000),
     },
     process.env.secret

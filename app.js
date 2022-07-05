@@ -11,8 +11,9 @@ var passport = require("passport");
 
 //#region ROUTE IMPORTS
 var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
+var productRouter = require("./routes/product");
 var roleRouter = require("./routes/role");
+var usersRouter = require("./routes/users");
 var authenticationRouter = require("./routes/authentication");
 //#endregion ROUTE IMPORTS
 
@@ -54,10 +55,13 @@ app.use(express.static(path.join(__dirname, "public")));
 // Inicializar passport para su uso en las rutas
 app.use(passport.initialize());
 // Rutas
+// Default Route
 app.use("/", indexRouter);
-app.use("/users", usersRouter);
-app.use("/role", roleRouter);
+// App Routes
 app.use("/authentication", authenticationRouter);
+app.use("/product", productRouter);
+app.use("/role", roleRouter);
+app.use("/users", usersRouter);
 //#region ROUTE USAGE
 
 // catch 404 and forward to error handler
