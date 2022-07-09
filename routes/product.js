@@ -3,6 +3,7 @@ var express = require("express");
 var router = express.Router();
 var Product = require("../models/Product");
 var jwt = require("express-jwt");
+var functions = require("../api/config/functions");
 //#endregion IMPORTS
 
 //#region DATA
@@ -30,12 +31,13 @@ router.get("/:id", auth, (req, res, next) => {
 // Obtener el listado de los registros paginados
 router.post("/paginated", auth, async (req, res, next) => {
   const { page = 1, limit = 10 } = req.body;
+  const filter = req.body.filter;
 
-  const items = await Product.find()
+  const items = await Product.find(functions.buildFilter(filter))
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .exec();
-  const count = await Product.countDocuments();
+  const count = await Product.countDocuments(functions.buildFilter(filter));
 
   res.json({
     items,
@@ -44,6 +46,7 @@ router.post("/paginated", auth, async (req, res, next) => {
       totalItems: count,
       totalPages: Math.ceil(count / limit),
       page,
+      filter,
     },
   });
 });

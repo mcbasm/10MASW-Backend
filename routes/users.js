@@ -4,6 +4,7 @@ var router = express.Router();
 var User = require("../models/User");
 var encryption = require("../security/encryption");
 var jwt = require("express-jwt");
+var functions = require("../api/config/functions");
 //#endregion IMPORTS
 
 //#region DATA
@@ -51,24 +52,22 @@ router.get("/:id", auth, (req, res, next) => {
 // Obtener el listado de los registros paginados
 router.post("/paginated", auth, async (req, res, next) => {
   const { page = 1, limit = 10 } = req.body;
+  const filter = req.body.filter;
 
-  const items = await User.find({
-    status: true,
-  })
+  const items = await User.find(functions.buildFilter(filter))
     .select({
       name: 1,
       lastName: 1,
       email: 1,
       phone: 1,
       role: 1,
+      status: 1,
     })
     .populate("role")
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .exec();
-  const count = await User.countDocuments({
-    status: true,
-  });
+  const count = await User.countDocuments(functions.buildFilter(filter));
 
   res.json({
     items,
@@ -77,6 +76,7 @@ router.post("/paginated", auth, async (req, res, next) => {
       totalItems: count,
       totalPages: Math.ceil(count / limit),
       page,
+      filter,
     },
   });
 });

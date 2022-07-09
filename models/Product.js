@@ -9,7 +9,7 @@ var ProductSchema = new Schema(
       type: String,
       required: true,
     },
-    mininumStock: {
+    minimumStock: {
       type: Number,
       required: true,
       min: 0,
