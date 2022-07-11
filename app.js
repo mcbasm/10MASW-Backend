@@ -11,6 +11,7 @@ var passport = require("passport");
 
 //#region ROUTE IMPORTS
 var indexRouter = require("./routes/index");
+var invoiceRouter = require("./routes/invoice");
 var productRouter = require("./routes/product");
 var roleRouter = require("./routes/role");
 var usersRouter = require("./routes/users");
@@ -59,6 +60,7 @@ app.use(passport.initialize());
 app.use("/", indexRouter);
 // App Routes
 app.use("/authentication", authenticationRouter);
+app.use("/invoice", invoiceRouter);
 app.use("/product", productRouter);
 app.use("/role", roleRouter);
 app.use("/users", usersRouter);
