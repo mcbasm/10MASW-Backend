@@ -76,11 +76,58 @@ router.post("/", auth, async (req, res, next) => {
   });
 });
 // Editar un registro
-router.put("/:id", auth, (req, res, next) => {
-  Recipe.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
-    if (err) return next(err);
-    else res.json(result);
+router.put("/:id", auth, async (req, res, next) => {
+  // Actualizar el listado de los productos seleccionados a guardar
+  const recipe = await Recipe.findById(req.params.id).populate({
+    path: "products",
+    populate: {
+      path: "product",
+      model: "Product",
+    },
   });
+
+  const currentProducts = recipe.products;
+  const sentProducts = req.body.products;
+  // Eliminar los productos que ya no estan seleccionados
+  const productsToDelete = currentProducts.filter((x) => {
+    return !sentProducts.find((y) => y._id === x._id.toString());
+  });
+
+  productsToDelete.every(async (x) => {
+    await ProductPicked.findByIdAndDelete(x._id);
+  });
+
+  // Crear los productos faltantes
+  const productsToCreate = sentProducts.filter((x) => {
+    return !currentProducts.find((y) => y._id.toString() === x._id);
+  });
+
+  // Actualizar los productos restantes
+  sentProducts.every(async (x) => {
+    if (x._id) await ProductPicked.findByIdAndUpdate(x._id, x);
+  });
+
+  if (productsToCreate?.length > 0) {
+    ProductPicked.create(productsToCreate, (err, created) => {
+      created.forEach((newProduct) => {
+        let currentProduct = sentProducts.find(
+          (x) => x.product._id === newProduct.product._id.toString()
+        );
+        currentProduct._id = newProduct._id;
+      });
+
+      req.body.products = sentProducts;
+      Recipe.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
+        if (err) return next(err);
+        else res.json(result);
+      });
+    });
+  } else {
+    Recipe.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
+      if (err) return next(err);
+      else res.json(result);
+    });
+  }
 });
 // Eliminar un registro
 router.delete("/:id", auth, (req, res, next) => {
