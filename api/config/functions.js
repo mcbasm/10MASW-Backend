@@ -23,7 +23,7 @@ module.exports.buildFilter = function (object) {
           }
           break;
         case "object":
-          if (element.isId) {
+          if (element.isId || element.isUnique) {
             filter[key] = element.value;
           }
           break;

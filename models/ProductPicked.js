@@ -17,7 +17,6 @@ var ProductPickedSchema = new Schema(
     },
     total: {
       type: Number,
-      required: true,
       default: 0,
     },
   },

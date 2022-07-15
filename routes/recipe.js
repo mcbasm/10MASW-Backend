@@ -2,10 +2,9 @@
 var express = require("express");
 var router = express.Router();
 var ProductPicked = require("../models/ProductPicked");
-var Invoice = require("../models/Invoice");
-var jwt = require("express-jwt");
+var Recipe = require("../models/Recipe");
 var functions = require("../api/config/functions");
-const { DateTime } = require("luxon");
+var jwt = require("express-jwt");
 //#endregion IMPORTS
 
 //#region DATA
@@ -18,14 +17,14 @@ var auth = jwt({
 //#region REQUESTS
 // Obtener todos los registros
 router.get("/", auth, (req, res, next) => {
-  Invoice.find((err, result) => {
+  Recipe.find((err, result) => {
     if (err) return next(err);
     else res.json(result);
   });
 });
 // Obtener un registro por ID
 router.get("/:id", auth, (req, res, next) => {
-  Invoice.findById(req.params.id)
+  Recipe.findById(req.params.id)
     .populate({
       path: "products",
       populate: {
@@ -43,7 +42,7 @@ router.post("/paginated", auth, async (req, res, next) => {
   const { page = 1, limit = 10 } = req.body;
   const filter = req.body.filter;
 
-  const items = await Invoice.find(functions.buildFilter(filter))
+  const items = await Recipe.find(functions.buildFilter(filter))
     .limit(limit * 1)
     .skip((page - 1) * limit)
     .populate({
@@ -54,7 +53,7 @@ router.post("/paginated", auth, async (req, res, next) => {
       },
     })
     .exec();
-  const count = await Invoice.countDocuments(functions.buildFilter(filter));
+  const count = await Recipe.countDocuments(functions.buildFilter(filter));
 
   res.json({
     items,
@@ -69,21 +68,23 @@ router.post("/paginated", auth, async (req, res, next) => {
 });
 // Crear un registro
 router.post("/", auth, async (req, res, next) => {
-  // Crear las fechas a partir de los strings enviados de front
-  const dates = {
-    buyDate: DateTime.fromFormat(req.body.buyDate, "dd/MM/yyyy HH:mm"),
-    deliveryDate: DateTime.fromFormat(
-      req.body.deliveryDate,
-      "dd/MM/yyyy HH:mm"
-    ),
-  };
-  req.body.buyDate = dates.buyDate;
-  req.body.deliveryDate = dates.deliveryDate;
-
   // Crear los registros de los productos seleccionados a guardar
   req.body.products = await ProductPicked.create(req.body.products);
-
-  Invoice.create(req.body, (err, result) => {
+  Recipe.create(req.body, (err, result) => {
+    if (err) return next(err);
+    else res.json(result);
+  });
+});
+// Editar un registro
+router.put("/:id", auth, (req, res, next) => {
+  Recipe.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
+    if (err) return next(err);
+    else res.json(result);
+  });
+});
+// Eliminar un registro
+router.delete("/:id", auth, (req, res, next) => {
+  User.findByIdAndUpdate(req.params.id, { status: false }, (err, result) => {
     if (err) return next(err);
     else res.json(result);
   });

@@ -13,6 +13,7 @@ var passport = require("passport");
 var indexRouter = require("./routes/index");
 var invoiceRouter = require("./routes/invoice");
 var productRouter = require("./routes/product");
+var recipeRouter = require("./routes/recipe");
 var roleRouter = require("./routes/role");
 var usersRouter = require("./routes/users");
 var authenticationRouter = require("./routes/authentication");
@@ -62,6 +63,7 @@ app.use("/", indexRouter);
 app.use("/authentication", authenticationRouter);
 app.use("/invoice", invoiceRouter);
 app.use("/product", productRouter);
+app.use("/recipe", recipeRouter);
 app.use("/role", roleRouter);
 app.use("/users", usersRouter);
 //#region ROUTE USAGE
