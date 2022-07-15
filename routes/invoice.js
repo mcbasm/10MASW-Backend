@@ -1,9 +1,11 @@
 //#region IMPORTS
 var express = require("express");
 var router = express.Router();
+var ProductPicked = require("../models/ProductPicked");
 var Invoice = require("../models/Invoice");
 var jwt = require("express-jwt");
 var functions = require("../api/config/functions");
+const { DateTime } = require("luxon");
 //#endregion IMPORTS
 
 //#region DATA
@@ -39,8 +41,13 @@ router.post("/paginated", auth, async (req, res, next) => {
   const items = await Invoice.find(functions.buildFilter(filter))
     .limit(limit * 1)
     .skip((page - 1) * limit)
-    .populate("products")
-    .populate("products.product")
+    .populate({
+      path: "products",
+      populate: {
+        path: "product",
+        model: "Product",
+      },
+    })
     .exec();
   const count = await Invoice.countDocuments(functions.buildFilter(filter));
 
@@ -56,22 +63,22 @@ router.post("/paginated", auth, async (req, res, next) => {
   });
 });
 // Crear un registro
-router.post("/", auth, (req, res, next) => {
+router.post("/", auth, async (req, res, next) => {
+  // Crear las fechas a partir de los strings enviados de front
+  const dates = {
+    buyDate: DateTime.fromFormat(req.body.buyDate, "dd/MM/yyyy HH:mm"),
+    deliveryDate: DateTime.fromFormat(
+      req.body.deliveryDate,
+      "dd/MM/yyyy HH:mm"
+    ),
+  };
+  req.body.buyDate = dates.buyDate;
+  req.body.deliveryDate = dates.deliveryDate;
+
+  // Crear los registros de los productos seleccionados a guardar
+  req.body.products = await ProductPicked.create(req.body.products);
+
   Invoice.create(req.body, (err, result) => {
-    if (err) return next(err);
-    else res.json(result);
-  });
-});
-// Editar un registro
-router.put("/:id", auth, (req, res, next) => {
-  Invoice.findByIdAndUpdate(req.params.id, req.body, (err, result) => {
-    if (err) return next(err);
-    else res.json(result);
-  });
-});
-// Eliminar un registro
-router.delete("/:id", auth, (req, res, next) => {
-  Invoice.findByIdAndUpdate(req.params.id, { status: false }, (err, result) => {
     if (err) return next(err);
     else res.json(result);
   });
