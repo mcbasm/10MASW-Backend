@@ -3,7 +3,7 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 //#endregion IMPORTS
 
-var ProductInvoiceSchema = new Schema(
+var ProductPickedSchema = new Schema(
   {
     product: {
       type: Schema.Types.ObjectId,
@@ -24,4 +24,4 @@ var ProductInvoiceSchema = new Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("ProductInvoice", ProductInvoiceSchema);
+module.exports = mongoose.model("ProductPicked", ProductPickedSchema);

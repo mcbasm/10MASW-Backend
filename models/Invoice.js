@@ -22,7 +22,7 @@ var InvoiceSchema = new Schema(
       required: true,
     },
     products: [
-      { type: Schema.Types.ObjectId, ref: "ProductInvoice", required: true },
+      { type: Schema.Types.ObjectId, ref: "ProductPicked", required: true },
     ],
     provider: {
       type: String,
