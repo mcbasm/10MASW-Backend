@@ -18,6 +18,7 @@ var auth = jwt({
 router.get("/", auth, (req, res, next) => {
   Table.find({ status: true })
     .populate("waiter")
+    .sort("number")
     .exec((err, result) => {
       if (err) return next(err);
       else res.json(result);

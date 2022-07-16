@@ -17,6 +17,7 @@ var recipeRouter = require("./routes/recipe");
 var roleRouter = require("./routes/role");
 var usersRouter = require("./routes/users");
 var tableRouter = require("./routes/table");
+var orderRouter = require("./routes/order");
 var authenticationRouter = require("./routes/authentication");
 //#endregion ROUTE IMPORTS
 
@@ -68,6 +69,7 @@ app.use("/recipe", recipeRouter);
 app.use("/role", roleRouter);
 app.use("/users", usersRouter);
 app.use("/table", tableRouter);
+app.use("/order", orderRouter);
 //#region ROUTE USAGE
 
 // catch 404 and forward to error handler
