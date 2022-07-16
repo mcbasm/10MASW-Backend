@@ -1,6 +1,7 @@
 //#region IMPORTS
 var express = require("express");
 var router = express.Router();
+var Role = require("../models/Role");
 var User = require("../models/User");
 var encryption = require("../security/encryption");
 var jwt = require("express-jwt");
@@ -36,6 +37,26 @@ router.get("/", auth, (req, res, next) => {
 // Obtener un registro por ID
 router.get("/:id", auth, (req, res, next) => {
   User.findById(req.params.id)
+    .select({
+      name: 1,
+      lastName: 1,
+      email: 1,
+      phone: 1,
+      role: 1,
+    })
+    .populate("role")
+    .exec((err, result) => {
+      if (err) return next(err);
+      else res.json(result);
+    });
+});
+// Obtener un usuario por el rol asignado
+router.post("/byRole", auth, async (req, res, next) => {
+  // Obtener el rol de base de datos
+  const role = await Role.findOne({ name: req.body.role });
+  if (!role) res.status(500).send(new Error("No se encontro el rol."));
+
+  User.find({ role: role })
     .select({
       name: 1,
       lastName: 1,
