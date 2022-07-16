@@ -54,6 +54,8 @@ router.post("/paginated", auth, async (req, res, next) => {
   const { page = 1, limit = 10 } = req.body;
   const filter = req.body.filter;
 
+  filter.status = +filter.status;
+
   const items = await Order.find(functions.buildFilter(filter))
     .limit(limit * 1)
     .skip((page - 1) * limit)
@@ -62,8 +64,17 @@ router.post("/paginated", auth, async (req, res, next) => {
       populate: {
         path: "recipe",
         model: "Recipe",
+        populate: {
+          path: "products",
+          populate: {
+            path: "product",
+            model: "Product",
+          },
+        },
       },
     })
+    .populate("table")
+    .sort({ createdAt: -1 })
     .exec();
   const count = await Order.countDocuments(functions.buildFilter(filter));
 
