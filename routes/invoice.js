@@ -3,6 +3,8 @@ var express = require("express");
 var router = express.Router();
 var ProductPicked = require("../models/ProductPicked");
 var Invoice = require("../models/Invoice");
+var Product = require("../models/Product");
+var Movement = require("../models/Movement");
 var jwt = require("express-jwt");
 var functions = require("../api/config/functions");
 const { DateTime } = require("luxon");
@@ -79,6 +81,23 @@ router.post("/", auth, async (req, res, next) => {
   };
   req.body.buyDate = dates.buyDate;
   req.body.deliveryDate = dates.deliveryDate;
+
+  // Crear los movimientos asociados para cada producto
+  req.body.products.forEach((productPicked) => {
+    const movement = {
+      product: productPicked.product,
+      quantity: productPicked.quantity,
+      type: "Entrada",
+    };
+    Movement.create(movement, async (err, result) => {
+      if (err) return next(err);
+      else {
+        await Product.findByIdAndUpdate(productPicked.product._id, {
+          stock: productPicked.product.stock + movement.quantity,
+        });
+      }
+    });
+  });
 
   // Crear los registros de los productos seleccionados a guardar
   req.body.products = await ProductPicked.create(req.body.products);

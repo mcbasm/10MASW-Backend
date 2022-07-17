@@ -4,6 +4,8 @@ var router = express.Router();
 var RecipePicked = require("../models/RecipePicked");
 var Table = require("../models/Table");
 var Order = require("../models/Order");
+var Product = require("../models/Product");
+var Movement = require("../models/Movement");
 var functions = require("../api/config/functions");
 var jwt = require("express-jwt");
 //#endregion IMPORTS
@@ -174,6 +176,55 @@ router.post("/updateStatus", auth, async (req, res, next) => {
           await Table.findByIdAndUpdate(req.body.table, {
             availability: 1,
             waiter: undefined,
+          });
+        }
+        // Crear los movimientos asociados para cada producto si la orden fue completada
+        if (req.body.status == 4) {
+          // Obtener los valores de la orden
+          const order = await Order.findById(req.body._id)
+            .populate({
+              path: "recipes",
+              populate: {
+                path: "recipe",
+                model: "Recipe",
+                populate: {
+                  path: "products",
+                  populate: {
+                    path: "product",
+                    model: "Product",
+                  },
+                },
+              },
+            })
+            .exec();
+
+          console.log(order);
+
+          if (!order) return next(err);
+
+          // Obtener los productos Seleccionados
+          const productsPicked = [];
+          order.recipes.forEach((recipePicked) => {
+            recipePicked.recipe.products.forEach((product) => {
+              product.quantity = product.quantity * recipePicked.quantity;
+              productsPicked.push(product);
+            });
+          });
+
+          productsPicked.forEach((productPicked) => {
+            const movement = {
+              product: productPicked.product,
+              quantity: productPicked.quantity,
+              type: "Salida",
+            };
+            Movement.create(movement, async (err, result) => {
+              if (err) return next(err);
+              else {
+                await Product.findByIdAndUpdate(productPicked.product._id, {
+                  stock: productPicked.product.stock - movement.quantity,
+                });
+              }
+            });
           });
         }
         res.json(result);

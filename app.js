@@ -18,6 +18,7 @@ var roleRouter = require("./routes/role");
 var usersRouter = require("./routes/users");
 var tableRouter = require("./routes/table");
 var orderRouter = require("./routes/order");
+var movementRouter = require("./routes/movement");
 var authenticationRouter = require("./routes/authentication");
 //#endregion ROUTE IMPORTS
 
@@ -70,6 +71,7 @@ app.use("/role", roleRouter);
 app.use("/users", usersRouter);
 app.use("/table", tableRouter);
 app.use("/order", orderRouter);
+app.use("/movement", movementRouter);
 //#region ROUTE USAGE
 
 // catch 404 and forward to error handler

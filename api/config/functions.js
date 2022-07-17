@@ -1,4 +1,5 @@
 const { DateTime } = require("luxon");
+
 module.exports.buildFilter = function (object) {
   let filter = {};
   for (const key in object) {
