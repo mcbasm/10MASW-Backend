@@ -175,7 +175,7 @@ router.post("/updateStatus", auth, async (req, res, next) => {
         if ([4, 5].includes(req.body.status)) {
           await Table.findByIdAndUpdate(req.body.table, {
             availability: 1,
-            waiter: undefined,
+            waiter: null,
           });
         }
         // Crear los movimientos asociados para cada producto si la orden fue completada

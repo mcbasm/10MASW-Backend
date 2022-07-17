@@ -17,6 +17,7 @@ module.exports.login = function (req, res) {
       token = user.generateJwt();
       res.status(200);
       res.json({
+        name: user.lastName + ", " + user.name,
         role: user.role,
         token: token,
       });
