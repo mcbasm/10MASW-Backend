@@ -131,7 +131,7 @@ router.put("/:id", auth, async (req, res, next) => {
 });
 // Eliminar un registro
 router.delete("/:id", auth, (req, res, next) => {
-  User.findByIdAndUpdate(req.params.id, { status: false }, (err, result) => {
+  Recipe.findByIdAndUpdate(req.params.id, { status: false }, (err, result) => {
     if (err) return next(err);
     else res.json(result);
   });
